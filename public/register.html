@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Registration - Pro Design</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      width: 400px;
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #1f2937;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus {
+      border-color: #6366f1;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #6366f1;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #4f46e5;
+    }
+
+    .message {
+      display: none;
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .success { background: #dcfce7; color: #166534; }
+    .error { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h2>Register</h2>
+  <label>Email</label><input type="email" id="email" placeholder="Enter email" />
+  <label>Password</label><input type="password" id="password" placeholder="Enter password" />
+  <label>Role</label>
+  <select id="role"><option>User</option><option>Admin</option></select>
+  <button onclick="registerUser()">Register</button>
+
+  <div id="message" class="message"></div>
+</div>
+
+<script>
+  function registerUser() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const role = document.getElementById('role').value;
+    const messageDiv = document.getElementById('message');
+
+    if (!email || !password) {
+      messageDiv.textContent = 'Please fill in all fields';
+      messageDiv.className = 'message error';
+      messageDiv.style.display = 'block';
+      return;
+    }
+    const user = {
+     email: email,
+     password: password,
+     permission: role   }
+    
+    fetch('/api/newUser',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify(user)
+    }).then(Response => Response.json())
+    .then(data =>{
+       messageDiv.innerHTML = `User ${data.message} as ${role}`;
+       messageDiv.className = `message success` ;
+       messageDiv.style.display = 'block';     
+    })
+
+   
+
+    // Clear fields
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('role').value = 'User';
+  }
+</script>
+</body>
+</html>
