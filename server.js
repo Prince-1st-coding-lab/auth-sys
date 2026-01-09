@@ -20,9 +20,9 @@ app.post('/api/newUser',async (req,res)=>{
 
      db.query('insert into users(email,password,permission) values(?,?,?)',[email,hashedPassword,permission],(err,rows)=>{
         if(err){
-           res.json({message:`${err}`});
+           res.json({message:`${err}`,status:'bad'});
         }else{
-        res.json({message:`<span>registered successfully</span>`})
+        res.json({message:`registered successfully`,status:'ok'})
         }
     })
     
@@ -47,20 +47,18 @@ app.post('/api/login',(req,res)=>{
          if (!match) {
              return res.status(401).json({message:'incorrect password'})
         }
-        const token = jwt.sign({email:user.email,password:user.password,permission:user.permission},
+        const token = jwt.sign({email:user.email,permission:user.permission},
             process.env.JWT_SECRET,
             {expiresIn:'1h'}
         )
-        res.json({message:'logged in',token:token});
-
-        // res.sendFile(path.join(__dirname, 'index2.html'));
+        res.json({message:'logged in',token:token,nextPage:'dashboard.html'});
 
     })
 })
 
 //---------------api to verify and authorize-------------------
 function verifyToken(req,res,next){
-    if(!req.headers['Authirization']) return  res.json({message:'no token provided'});
+    if(!req.headers['authorization']) return  res.json({message:'no token provided'});
     const token = req.headers['authorization'].split(' ')[1];
 
     jwt.verify(token,process.env.JWT_SECRET,(err,decoded)=>{
@@ -70,7 +68,12 @@ function verifyToken(req,res,next){
     })
 }
 app.get('/api/verify',verifyToken,(req,res)=>{
-    
+    if(req.user.permission == 'admin'){
+        res.json({message:'you are admin'})
+    }else{
+        res.json({message:'you are regular user'})
+    }
+
 })
 app.listen(port,()=>{
     console.log(`connected to express server ${port}`);
